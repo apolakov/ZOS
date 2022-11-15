@@ -74,4 +74,9 @@ void load(std::vector<std::string> vector1);
 
 void format(std::vector<std::string> vector1);
 
+void make_dir_table();
+
+void make_fat();
+
+void fill_description(std::string basicString);
 #endif //ZOS_BLOCK_H

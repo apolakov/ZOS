@@ -3,8 +3,14 @@
 #include <list>
 #include "block.h"
 
-std::vector<std::string> names = {};
+std::vector<std::string> names ;
 int dir_size = 10;
+description fs_des;
+int fs_atribut = 6;
+char fs[512];
+
+directory_item directiories[10];
+char fat[10];
 
 using namespace std;
 
@@ -219,12 +225,38 @@ bool contains(vector<string> v, string name) {
 }
 
 void make_fs(string basicString) {
-    description fs;
-    fs.signature="apolakov";
-    fs.disk_size= 100;
-    fs.cluster_size = 10;
-    fs.cluster_count= 5;
-    fs.fat_count = 5;
-    fs.fat1_start_address = 0b11000000;
-    fs.data_start_address = 0b11010100;
+
+    fill_description(basicString);
+    make_dir_table();
+    make_fat();
 }
+
+void make_fat() {
+
+}
+
+void fill_description(string basicString) {
+
+    fs_des.signature="apolakov";
+    fs_des.disk_size= 512;
+    fs_des.cluster_size = 10;
+    fs_des.cluster_count= 10;
+    fs_des.fat_count = 10;
+    fs_des.fat1_start_address = 200;
+    fs_des.data_start_address = 400;
+
+
+}
+
+
+
+void make_dir_table(){
+
+    directory_item root;
+    root.size=dir_size;
+    root.isFile= false;
+    root.item_name = "root";
+    root.start_cluster = fs_atribut+1;
+
+}
+
