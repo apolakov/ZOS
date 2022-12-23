@@ -2,25 +2,34 @@
 #include <vector>
 #include <list>
 #include "block.h"
+#include <fstream>
 
-std::vector<std::string> names ;
-int dir_size = 10;
+std::fstream f;
+std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
+int fat[100];
+//std::vector<int> fattable;
+
+//std::vector<std::string> names ;
+//int dir_size = 10;
 description fs_des;
-int fs_atribut = 6;
-char fs[512];
+//int fs_atribut = 6;
 
-directory_item directiories[10];
-char fat[10];
+//std::ofstream file;
+
+
+void nacti_zaklad_fat(std::string meno);
+
 
 using namespace std;
+
 
 int main() {
 
     std::string name= "system";
+    fill_description("blabla");
+    nacti_zaklad_fat(name);
 
-    make_fs( name);
     std::string s;
-    std::string beg;
 
     for(;;) {
     getline(std::cin, s);
@@ -77,8 +86,10 @@ int main() {
             cout << "Chybny prikaz";
         }
     }
+
     return 0;
 }
+
 
 void format(vector<string> vector1) {
 
@@ -181,7 +192,7 @@ void cp(vector<string> vector1) {
 }
 
 void mkdir(vector<string> v) {
-
+/*
     if(v.size()!=2){
         cout<<"Chybny pocet parametrov";
         return;
@@ -210,6 +221,7 @@ void mkdir(vector<string> v) {
     dir.isFile = false;
     dir.size =dir_size;
     dir.start_cluster;
+    */
 
 }
 
@@ -237,13 +249,16 @@ void make_fat() {
 
 void fill_description(string basicString) {
 
+    /*
     fs_des.signature="apolakov";
-    fs_des.disk_size= 512;
-    fs_des.cluster_size = 10;
-    fs_des.cluster_count= 10;
-    fs_des.fat_count = 10;
+    fs_des.disk_size= 1024;
+    fs_des.cluster_size = sizeof (directory_item)*3;
+    fs_des.cluster_count= 50;
+    fs_des.fat_count = 100;
     fs_des.fat1_start_address = 200;
     fs_des.data_start_address = 400;
+     */
+
 
 
 }
@@ -251,12 +266,111 @@ void fill_description(string basicString) {
 
 
 void make_dir_table(){
-
+/*
     directory_item root;
     root.size=dir_size;
     root.isFile= false;
     root.item_name = "root";
     root.start_cluster = fs_atribut+1;
+    */
 
 }
+
+/**
+ * nacti_zaklad_fat(char* jmeno)
+ * Nacte zakladni udaje o FAT
+ * Boot_record, root_directory, fat_table, clusters
+ *
+ */
+
+void nacti_zaklad_fat(string filename) {
+
+    std:: string signature="apolakovaaa";
+
+    while( (signature).size()<8){
+        signature = signature + "0";
+    }
+    if( (signature).size()>8){
+        signature = signature.substr(0,8);
+    }
+    fs_des.signature= signature;
+
+    cout<<fs_des.signature;
+    subor.write(reinterpret_cast<char*>(&fs_des.signature), sizeof(fs_des.signature.substr(0,8)));
+
+    subor.seekp (subor.tellp());
+    fs_des.disk_size= 1024;
+    subor.write(reinterpret_cast<char*>(& fs_des.disk_size), sizeof( fs_des.disk_size));
+
+    subor.seekp (subor.tellp());
+    fs_des.cluster_size= 50;
+    subor.write(reinterpret_cast<char*>(&fs_des.cluster_size), sizeof(fs_des.cluster_size));
+
+    subor.seekp (subor.tellp());
+    fs_des.cluster_count= 50;
+    subor.write(reinterpret_cast<char*>(&fs_des.cluster_count), sizeof(fs_des.cluster_count));
+
+
+    subor.seekp (subor.tellp());
+    fs_des.fat1_start_address= 200; //for now
+    subor.write(reinterpret_cast<char*>(&fs_des.fat1_start_address), sizeof(fs_des.fat1_start_address));
+
+    subor.seekp (subor.tellp());
+    fs_des.data_start_address= 400; //for now
+    subor.write(reinterpret_cast<char*>(&fs_des.data_start_address), sizeof(fs_des.data_start_address));
+
+
+
+    //fat
+    for (int i =0; i< sizeof(fat); i++){
+        char ch = '-';
+        subor.seekp (subor.tellp());
+        subor.write(reinterpret_cast<char *>(&ch), sizeof(ch));
+
+    }
+
+
+    /*
+    long pos;
+
+    fstream subor ("file_name2",  ios::in | ios::out | ios::binary| ios::trunc );
+    subor.write( reinterpret_cast<char*>(&fs_des), sizeof(fs_des) );
+
+    for(int i =0; i<fs_des.fat_count; i++){
+        fattable.push_back(-5);
+    }
+
+    pos = subor.tellp();
+    subor.seekp (pos);
+    subor.write( reinterpret_cast<char*>(&fattable), sizeof(int)*fs_des.fat_count );
+
+    for(int i =0; i<fs_des.cluster_count; i++){
+        cluster c;
+        std::vector<directory_item>v;
+        int dir_in_cl= fs_des.cluster_size/sizeof(directory_item);
+
+        for(int j =0; j<dir_in_cl; j++) {
+            directory_item d;
+            v.push_back(d);
+        }
+        c.dire=v;
+
+        subor.write( reinterpret_cast<char*>(&v), sizeof(int)*sizeof(v));
+    }
+
+    for(int i =0; i<(fs_des.disk_size-(fs_des.cluster_size*fs_des.cluster_count)-sizeof(fattable)-sizeof(description));i++){
+        subor.write( reinterpret_cast<char*>(-9), sizeof(int));
+    }
+
+    
+
+    pos = subor.tellp();
+    subor.seekp (pos);
+
+    file.close();
+     */
+    return;
+}
+
+
 

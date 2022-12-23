@@ -43,6 +43,10 @@ struct directory_item {
     int32_t start_cluster;           //počáteční cluster položky
 };
 
+struct cluster {
+    std::vector<directory_item> dire ;
+};
+
 void make_fs(std::string basicString);
 
 void mkdir(std::vector<std::string> v);
