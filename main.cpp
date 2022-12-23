@@ -237,14 +237,11 @@ bool contains(vector<string> v, string name) {
 }
 
 void make_fs(string basicString) {
-
+/*
     fill_description(basicString);
     make_dir_table();
     make_fat();
-}
-
-void make_fat() {
-
+    */
 }
 
 void fill_description(string basicString) {
@@ -296,29 +293,23 @@ void nacti_zaklad_fat(string filename) {
     fs_des.signature= signature;
 
     cout<<fs_des.signature;
-    subor.write(reinterpret_cast<char*>(&fs_des.signature), sizeof(fs_des.signature.substr(0,8)));
 
-    subor.seekp (subor.tellp());
+    subor.write(signature.c_str(), signature.size());
+
     fs_des.disk_size= 1024;
-    subor.write(reinterpret_cast<char*>(& fs_des.disk_size), sizeof( fs_des.disk_size));
+    subor.write(to_string(fs_des.disk_size).c_str(), sizeof( int));
 
-    subor.seekp (subor.tellp());
     fs_des.cluster_size= 50;
-    subor.write(reinterpret_cast<char*>(&fs_des.cluster_size), sizeof(fs_des.cluster_size));
+    subor.write(to_string(fs_des.cluster_size).c_str(), sizeof( int));
 
-    subor.seekp (subor.tellp());
     fs_des.cluster_count= 50;
-    subor.write(reinterpret_cast<char*>(&fs_des.cluster_count), sizeof(fs_des.cluster_count));
+    subor.write(to_string(fs_des.cluster_count).c_str(), sizeof( int));
 
-
-    subor.seekp (subor.tellp());
     fs_des.fat1_start_address= 200; //for now
-    subor.write(reinterpret_cast<char*>(&fs_des.fat1_start_address), sizeof(fs_des.fat1_start_address));
+    subor.write(to_string(fs_des.fat1_start_address).c_str(), sizeof( int));
 
-    subor.seekp (subor.tellp());
     fs_des.data_start_address= 400; //for now
-    subor.write(reinterpret_cast<char*>(&fs_des.data_start_address), sizeof(fs_des.data_start_address));
-
+    subor.write(to_string(fs_des.data_start_address).c_str(), sizeof( int));
 
 
     //fat
