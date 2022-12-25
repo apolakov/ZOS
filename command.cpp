@@ -9,6 +9,7 @@
 //int fat[100];
 //description fs_des;
 //std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
+using namespace std;
 
 void format(std::vector<std::string> vector1) {
 

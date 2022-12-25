@@ -69,8 +69,6 @@ void nacti_zaklad_fat(std::string filename) {
 
     }
 
-
-
     //data
     for (int i =0; i< 300; i++){
         char ch = '*';
@@ -89,7 +87,6 @@ void nacti_zaklad_fat(std::string filename) {
     // root.start_cluster = 0;
     subor.seekp(directory_starts);
     subor.write(reinterpret_cast<char *>(root), sizeof(directory_item));
-
 
     subor.seekp(0);
     std::string raja;
