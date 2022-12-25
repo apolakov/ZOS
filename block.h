@@ -34,11 +34,17 @@ struct description {
 };
 
 
+struct aa {
+
+    int item_name=5;              //8+3 + /0 C/C++ ukoncovaci string znak
+
+};
 
 
 struct directory_item {
-    std::string item_name;              //8+3 + /0 C/C++ ukoncovaci string znak
-    bool isFile;		     //identifikace zda je soubor (TRUE), nebo adresář (FALSE)
+
+    std::string item_name="klokan";              //8+3 + /0 C/C++ ukoncovaci string znak
+    bool isFile;		        //identifikace zda je soubor (TRUE), nebo adresář (FALSE)
     int32_t size;                    //velikost souboru, u adresáře 0 (bude zabirat jeden blok)
     int32_t start_cluster;           //počáteční cluster položky
 };
@@ -49,7 +55,7 @@ struct cluster {
 
 void make_fs(std::string basicString);
 
-void mkdir(std::vector<std::string> v);
+void mkdir2(std::string v);
 
 bool contains(std::vector<std::string> vector1, std::string basicString);
 void cp(std::vector<std::string> vector1);

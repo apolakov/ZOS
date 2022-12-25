@@ -1,10 +1,11 @@
 #include <iostream>
 #include <vector>
-#include <list>
-#include "block.h"
-#include <fstream>
 
-std::fstream f;
+//#include <list>
+#include "block.h"
+//#include <fstream>
+
+
 std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
 int fat[100];
 //std::vector<int> fattable;
@@ -15,7 +16,7 @@ description fs_des;
 //int fs_atribut = 6;
 
 //std::ofstream file;
-
+int cluster_size =50;
 
 void nacti_zaklad_fat(std::string meno);
 
@@ -26,7 +27,7 @@ using namespace std;
 int main() {
 
     std::string name= "system";
-    fill_description("blabla");
+//    fill_description("blabla");
     nacti_zaklad_fat(name);
 
     std::string s;
@@ -52,7 +53,7 @@ int main() {
             }
         }
     }
-        if (v.front() == "exit") {
+        if ((v.front() == "exit")|| (v.front() == "e")){
             break;
         } else if (v.front() == "cp") {
             cp(v);
@@ -61,7 +62,7 @@ int main() {
         } else if (v.front() == "rm") {
             rm(v);
         } else if (v.front() == "mkdir") {
-            mkdir(v);
+            mkdir2("hello");
         } else if (v.front() == "rmdir") {
             rmdir(v);
         } else if (v.front() == "ls") {
@@ -191,37 +192,23 @@ void cp(vector<string> vector1) {
     cout <<" a parameter s2 je "<<s2<<endl;
 }
 
-void mkdir(vector<string> v) {
-/*
-    if(v.size()!=2){
-        cout<<"Chybny pocet parametrov";
-        return;
-    }
+void mkdir2(string name) {
 
-    std::vector<std::string>::iterator it = v.begin();
-    it++;
-    std::string name =  *it;
-    name.erase(remove(name.begin(), name.end(), ' '), name.end());
-    cout<<name;
+    directory_item item; // ma to bzt jeden blok... netusim co to znamena
 
-    std::string cesta = "/odkial/mamzobrat/cestu"; //????????
-    directory_item dir;
+    while( (name).size()<8){
+        name = name + "0";
+    }
+    name = name + "/0";
 
-    if(cesta == ""){
-        cout <<"PATH NOT FOUND"<<endl;
-        return;
-    }
-    if (contains(names, name)){
-        cout <<"EXIST"<<endl;
-        return;
-    }
-    //este dalsich milion veci ale netusim akych
-    cout <<"OK"<<endl;
-    dir.item_name = "name";
-    dir.isFile = false;
-    dir.size =dir_size;
-    dir.start_cluster;
-    */
+    item.item_name = name;
+    item.isFile= true;
+    item.size=50;               /// neviem ci tak fakt
+    item.start_cluster = 0;
+    //subor.seekp(directory_starts);
+   // subor.write(reinterpret_cast<char *>(&root), sizeof(root));
+
+    cout<< sizeof(directory_item);
 
 }
 
@@ -234,43 +221,6 @@ bool contains(vector<string> v, string name) {
       return false;
     }
     return false;
-}
-
-void make_fs(string basicString) {
-/*
-    fill_description(basicString);
-    make_dir_table();
-    make_fat();
-    */
-}
-
-void fill_description(string basicString) {
-
-    /*
-    fs_des.signature="apolakov";
-    fs_des.disk_size= 1024;
-    fs_des.cluster_size = sizeof (directory_item)*3;
-    fs_des.cluster_count= 50;
-    fs_des.fat_count = 100;
-    fs_des.fat1_start_address = 200;
-    fs_des.data_start_address = 400;
-     */
-
-
-
-}
-
-
-
-void make_dir_table(){
-/*
-    directory_item root;
-    root.size=dir_size;
-    root.isFile= false;
-    root.item_name = "root";
-    root.start_cluster = fs_atribut+1;
-    */
-
 }
 
 /**
@@ -308,60 +258,64 @@ void nacti_zaklad_fat(string filename) {
     fs_des.fat1_start_address= 200; //for now
     subor.write(to_string(fs_des.fat1_start_address).c_str(), sizeof( int));
 
-    fs_des.data_start_address= 400; //for now
+    fs_des.data_start_address= 400; //for now6
     subor.write(to_string(fs_des.data_start_address).c_str(), sizeof( int));
 
 
     //fat
     for (int i =0; i< sizeof(fat); i++){
         char ch = '-';
-        subor.seekp (subor.tellp());
+     //   subor.seekp (subor.tellp());
+        subor.write(reinterpret_cast<char *>(&ch), sizeof(ch));
+
+    }
+
+    //directory items
+    int directory_starts = subor.tellp();
+    for (int i =0; i< 300; i++){
+        char ch = '+';
+        //   subor.seekp (subor.tellp());
         subor.write(reinterpret_cast<char *>(&ch), sizeof(ch));
 
     }
 
 
-    /*
-    long pos;
 
-    fstream subor ("file_name2",  ios::in | ios::out | ios::binary| ios::trunc );
-    subor.write( reinterpret_cast<char*>(&fs_des), sizeof(fs_des) );
+    //data
+    for (int i =0; i< 300; i++){
+        char ch = '*';
 
-    for(int i =0; i<fs_des.fat_count; i++){
-        fattable.push_back(-5);
+        subor.write(reinterpret_cast<char *>(&ch), sizeof(ch));
+
+    }
+aa* a  = new aa();
+
+    subor.write(reinterpret_cast<const char *>(a), sizeof(aa));
+    //"root", true, 50,directory_starts
+    directory_item* root = new directory_item(); // ma to bzt jeden blok... netusim
+   /* root.item_name = "root0000/0";
+    root.isFile= true;
+    root.size=50;
+    root.start_cluster = 0;*/
+    subor.seekp(directory_starts);
+    subor.write(reinterpret_cast<char *>(root), sizeof(directory_item));
+/*
+    string output;
+    cout<<output;
+    subor.read(reinterpret_cast<char *>(&output),sizeof(root));
+    */
+    cout<< sizeof(directory_item);
+    cout<< sizeof(aa);
+
+    subor.seekp(0);
+    string raja;
+
+    while(!subor.eof()){
+        subor>>raja;
+        cout<< raja<<endl;
     }
 
-    pos = subor.tellp();
-    subor.seekp (pos);
-    subor.write( reinterpret_cast<char*>(&fattable), sizeof(int)*fs_des.fat_count );
-
-    for(int i =0; i<fs_des.cluster_count; i++){
-        cluster c;
-        std::vector<directory_item>v;
-        int dir_in_cl= fs_des.cluster_size/sizeof(directory_item);
-
-        for(int j =0; j<dir_in_cl; j++) {
-            directory_item d;
-            v.push_back(d);
-        }
-        c.dire=v;
-
-        subor.write( reinterpret_cast<char*>(&v), sizeof(int)*sizeof(v));
-    }
-
-    for(int i =0; i<(fs_des.disk_size-(fs_des.cluster_size*fs_des.cluster_count)-sizeof(fattable)-sizeof(description));i++){
-        subor.write( reinterpret_cast<char*>(-9), sizeof(int));
-    }
-
-    
-
-    pos = subor.tellp();
-    subor.seekp (pos);
-
-    file.close();
-     */
     return;
 }
-
 
 
