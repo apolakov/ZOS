@@ -12,6 +12,12 @@ using namespace std;
 char empty_cluster[4*512] ={0};
 description fs_des;
 std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
+int cluster_size = 4; // v sektoroch
+int fat_tabulka_sektoru;
+int sektor_size = 512;
+char help_sektor[512];
+char help_cluster[512*4];
+
 
 
 /**
@@ -23,13 +29,13 @@ std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::bina
 
 void nacti_zaklad_fat(std::string filename) {
 
-    int sektor_size = 512;
-    int cluster_size = 4; // v sektoroch
+
+
     int kapacita = 4194304; //celeho disku
     int sektors = kapacita/sektor_size;
     int vyuzitelna_kapacita = (kapacita-512);
     int pocet_clusteru = sektors / cluster_size;
-    int fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
+    fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
 
 
     std:: string signature="apolakovaaa";
@@ -58,23 +64,11 @@ void nacti_zaklad_fat(std::string filename) {
 
     fs_des.cluster_count= pocet_clusteru;
     subor.write( reinterpret_cast<char*>(&fs_des.cluster_count), sizeof(fs_des.cluster_count) );
-    //subor.write(std::to_string(fs_des.cluster_count).c_str(), sizeof( int));
-
-  //  fs_des.fat1_start_address= 512; //for now
-  //  subor.write(std::to_string(fs_des.fat1_start_address).c_str(), sizeof( int));
-
-  //  fs_des.data_start_address= 400; //for now6
-    //subor.write(std::to_string(fs_des.data_start_address).c_str(), sizeof( int));
-
-
 
     subor.seekp(512, std::ios::beg);
 
     for (int i =0; i< sektors-1; i++){
-
-        //   subor.seekp (subor.tellp());
         subor.write(empty_cluster,512);
-
     }
 
     subor.seekp(512, std::ios::beg);
@@ -101,5 +95,44 @@ void nacti_zaklad_fat(std::string filename) {
 
 
 
+
+
     return;
 }
+int sector_from_cluster(int cluster ){
+    //sektor = 1 + pocet fat sektoru + (cluster-1) * velikost clusteru
+    int sector;
+    sector = 1 + fat_tabulka_sektoru + (cluster-1) * cluster_size;
+    return sector;
+}
+
+int byte_from_sector(int sector){
+   int byte = sector * sektor_size;
+   return byte;
+}
+
+//tu malo byt to pole asi vyreturnovane ale C to nevie, tak som to utobila tak ze to pole je public, lebo predpolkadam,ze bude len jedno
+
+void read_sector(int number){
+
+    subor.seekp(number*sektor_size);
+    subor.read(const_cast<char *>(reinterpret_cast<const char *>(&help_sektor)), sektor_size);
+};
+
+void read_cluster(int number){
+
+    subor.seekp(number*cluster_size*sektor_size);
+    subor.read(const_cast<char *>(reinterpret_cast<const char *>(&help_cluster)), cluster_size*sektor_size);
+};
+
+void write_sector(int number, char buff[512]){
+
+    subor.seekp(number*sektor_size);
+    subor.write(const_cast<char *>(reinterpret_cast<const char *>(&buff)), sektor_size);
+};
+
+void write_cluster(int number, char buff[512*4]){
+
+    subor.seekp(number*sektor_size*cluster_size);
+    subor.write(const_cast<char *>(reinterpret_cast<const char *>(&buff)), cluster_size*sektor_size);
+};
