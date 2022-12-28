@@ -3,4 +3,4 @@ project(ZOS)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(ZOS main.cpp command.cpp command.h fat.cpp fat.h)
+add_executable(ZOS main.cpp command.cpp command.h fat.cpp fat.h global.h)

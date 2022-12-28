@@ -6,13 +6,36 @@
 #include "block.h"
 #include "command.h"
 #include "fat.h"
+#include "global.h"
 //int fat[100];
 //description fs_des;
 //std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
+
+
 using namespace std;
 
-void format(std::vector<std::string> vector1) {
+int format(std::vector<std::string> vector1) {
 
+    if(vector1.size()!=2){
+        std::cout<<"CAN NOT CREATE FILE ...Chybny pocet parametrov";
+        cout<<vector1.size();
+        return-1;
+    }
+
+    std::vector<std::string>::iterator it = vector1.begin();
+    it++;
+    std::string s1 =  *it;
+
+    int size = stoi(s1);
+
+
+    size = size*1024*4;
+    sektors = size/sektor_size;
+    vyuzitelna_kapacita = (size-512);
+    pocet_clusteru = sektors / cluster_size;
+    fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
+    cout<<"OK";
+return 0;
 }
 
 void load(std::vector<std::string> vector1) {
@@ -111,8 +134,29 @@ void cp(std::vector<std::string> vector1) {
     std::cout <<" a parameter s2 je "<<s2<<std::endl;
 }
 
-void mkdir2(std::string name) {
-/*
+void mkdir(std::vector<std::string> vector1) {
+
+    if(vector1.size()!=2){
+        std::cout<<"CAN NOT CREATE FILE ...Chybny pocet parametrov";
+        cout<<vector1.size();
+        return;
+    }
+
+    std::vector<std::string>::iterator it = vector1.begin();
+    it++;
+    std::string path =  *it;
+
+    string str1 ("\\");
+    string str2 ("/");
+
+    if (((path.find(str1))||(path.find(str2))) != string::npos) {
+        mkdir_absolut(path);
+    }
+    else mkdir_relativ(path);
+
+
+
+    /*
     directory_item item; // ma to bzt jeden blok... netusim co to znamena
 
     while( (name).size()<8){
@@ -129,6 +173,16 @@ void mkdir2(std::string name) {
 
     std::cout<< sizeof(directory_item);
 */
+}
+
+void mkdir_relativ(string basicString) {
+
+}
+
+void mkdir_absolut(string basicString) {
+
+
+
 }
 
 bool contains(std::vector<std::string> v, std::string name) {

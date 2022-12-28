@@ -27,7 +27,7 @@ void outcp(std::vector<std::string> vector1);
 
 void load(std::vector<std::string> vector1);
 
-void format(std::vector<std::string> vector1);
+int format(std::vector<std::string> vector1);
 
 void make_dir_table();
 
@@ -35,6 +35,15 @@ void make_fat();
 
 void fill_description(std::string basicString);
 
+void make_fs(std::string basicString);
 
+void mkdir(std::vector<std::string> vector1);
+
+bool contains(std::vector<std::string> vector1, std::string basicString);
+void cp(std::vector<std::string> vector1);
+
+void mkdir_absolut(std::string basicString);
+
+void mkdir_relativ(std::string basicString);
 
 #endif //ZOS_COMMAND_H

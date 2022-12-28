@@ -7,6 +7,11 @@
 
 #include <string>
 
+
+
+
+
+
 void nacti_zaklad_fat(std::string meno);
 
 

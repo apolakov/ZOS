@@ -6,17 +6,22 @@
 #include <iostream>
 #include <vector>
 #include "block.h"
+#include "command.h"
+#include "global.h"
+
 
 using namespace std;
 //int fat[100];
 char empty_cluster[4*512] ={0};
 description fs_des;
 std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
+/*
 int cluster_size = 4; // v sektoroch
 int fat_tabulka_sektoru;
 int sektor_size = 512;
 char help_sektor[512];
 char help_cluster[512*4];
+ */
 
 
 
@@ -29,14 +34,21 @@ char help_cluster[512*4];
 
 void nacti_zaklad_fat(std::string filename) {
 
-
+/*
+    int kapacita = format(1MB);
 
     int kapacita = 4194304; //celeho disku
     int sektors = kapacita/sektor_size;
     int vyuzitelna_kapacita = (kapacita-512);
     int pocet_clusteru = sektors / cluster_size;
     fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
+    */
+    std::vector<string> v;
+    v.push_back("format ");
+    v.push_back("1MB");
 
+
+    format(v);
 
     std:: string signature="apolakovaaa";
 
@@ -99,7 +111,7 @@ void nacti_zaklad_fat(std::string filename) {
 
     return;
 }
-int sector_from_cluster(int cluster ){
+int   _from_cluster(int cluster ){
     //sektor = 1 + pocet fat sektoru + (cluster-1) * velikost clusteru
     int sector;
     sector = 1 + fat_tabulka_sektoru + (cluster-1) * cluster_size;
@@ -136,3 +148,35 @@ void write_cluster(int number, char buff[512*4]){
     subor.seekp(number*sektor_size*cluster_size);
     subor.write(const_cast<char *>(reinterpret_cast<const char *>(&buff)), cluster_size*sektor_size);
 };
+
+int next_number(int cluster){
+    /*
+    precteni dalsiho cisla ve fat tabulce (jako argument je cislo sektoru), ale pozor - cislo clusteru je ve fat_tabulce jako 4B tzn: prectes 1 sektor (512B),
+    pretypujes ho na sektor co obsahuje integery (512/4 integeru), sektor ve fat tabulce se spocita: sektor = cluster / (velikost sektoru / sizeof(int)),
+    index ve fat tabulce: index = cluster % (velikost sektoru / sizeof(int))
+     */
+
+    int sektor = cluster / (sektor_size / sizeof(int));
+    int index = cluster%(sektor_size/sizeof(int));
+
+    return index;
+}
+
+int read_dir(int cluster){
+
+    /*
+    precteni slozky - ctes dokud nenarazis na -1,
+     potom stop, pri precteni jednoho clusteru čteš v cyklu od i = 0
+     do velikost_clusteru / 32 něco jako: directory_item* item = &buffer[i*32];
+     */
+    int next;
+
+    do{
+        next = next_number(cluster);
+        read_cluster(next);
+
+
+    }while (next=!-1);
+
+    return 0;
+}

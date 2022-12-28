@@ -48,12 +48,7 @@ struct cluster {
     std::vector<directory_item> dire ;
 };
 
-void make_fs(std::string basicString);
 
-void mkdir2(std::string v);
-
-bool contains(std::vector<std::string> vector1, std::string basicString);
-void cp(std::vector<std::string> vector1);
 
 
 #endif //ZOS_BLOCK_H

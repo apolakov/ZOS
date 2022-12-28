@@ -4,11 +4,6 @@
 #include "command.h"
 #include "fat.h"
 
-int cluster_size =50;
-
-
-
-
 using namespace std;
 
 
@@ -51,7 +46,7 @@ int main() {
         } else if (v.front() == "rm") {
             rm(v);
         } else if (v.front() == "mkdir") {
-            mkdir2("hello");
+            mkdir(v);
         } else if (v.front() == "rmdir") {
             rmdir(v);
         } else if (v.front() == "ls") {
