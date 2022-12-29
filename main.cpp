@@ -14,6 +14,8 @@ int main() {
 
     std::string name= "system";
     nacti_zaklad_fat(name);
+
+
     std::string s;
 
     for(;;) {

@@ -6,14 +6,20 @@
 #define FILE_NAME2_GLOBAL_H
 
 const int cluster_size = 4; // v sektoroch
-static int fat_tabulka_sektoru;
+
 const int sektor_size = 512;
 static char help_sektor[512];
 static char help_cluster[512*4];
 
-static int sektors;
-static int vyuzitelna_kapacita;
-static int pocet_clusteru;
+/*
+extern int sektors;
+extern int vyuzitelna_kapacita;
+extern int pocet_clusteru;
+extern int fat_start;
+static int directories_start;
+static int data_start;
+ extern int fat_tabulka_sektoru;
+ */
 
 
 

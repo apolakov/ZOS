@@ -10,7 +10,13 @@
 //int fat[100];
 //description fs_des;
 //std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
-
+extern int sektors;
+extern int vyuzitelna_kapacita;
+extern int pocet_clusteru;
+extern int fat_start;
+extern int directories_start;
+extern int data_start;
+extern int fat_tabulka_sektoru;
 
 using namespace std;
 
@@ -29,11 +35,22 @@ int format(std::vector<std::string> vector1) {
     int size = stoi(s1);
 
 
-    size = size*1024*4;
+    size = size*1024*4*1024;
+   // cout<<"size>>>>";
+   // cout<<size<<endl;
+  //  size = 5;
+
+    cout<<size;
     sektors = size/sektor_size;
+
+
+
+
     vyuzitelna_kapacita = (size-512);
     pocet_clusteru = sektors / cluster_size;
     fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
+    cout<<"sektors:";
+    cout<<sektors<<endl;
     cout<<"OK";
 return 0;
 }

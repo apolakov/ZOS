@@ -15,14 +15,21 @@ using namespace std;
 char empty_cluster[4*512] ={0};
 description fs_des;
 std::fstream subor ("file_name2",  std::ios::in | std::ios::out | std::ios::binary| std::ios::trunc );
+int sektors;
+int vyuzitelna_kapacita;
+int pocet_clusteru;
+int fat_start;
+int directories_start;
+int data_start;
+int fat_tabulka_sektoru;
 /*
 int cluster_size = 4; // v sektoroch
 int fat_tabulka_sektoru;
 int sektor_size = 512;
 char help_sektor[512];
 char help_cluster[512*4];
- */
 
+*/
 
 
 /**
@@ -36,19 +43,27 @@ void nacti_zaklad_fat(std::string filename) {
 
 /*
     int kapacita = format(1MB);
-
     int kapacita = 4194304; //celeho disku
     int sektors = kapacita/sektor_size;
     int vyuzitelna_kapacita = (kapacita-512);
     int pocet_clusteru = sektors / cluster_size;
     fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
+
     */
+
+
+
     std::vector<string> v;
     v.push_back("format ");
     v.push_back("1MB");
 
 
+
     format(v);
+
+    cout<<"sektors:";
+    cout<<sektors<<endl;
+
 
     std:: string signature="apolakovaaa";
 
@@ -79,34 +94,52 @@ void nacti_zaklad_fat(std::string filename) {
 
     subor.seekp(512, std::ios::beg);
 
+
     for (int i =0; i< sektors-1; i++){
         subor.write(empty_cluster,512);
+    //    cout<<subor.tellp()<<endl;
     }
 
-    subor.seekp(512, std::ios::beg);
+    fat_start =512;
+    subor.seekp(512, std::ios::beg);                    //512
     int buffer[512/sizeof(int)]={0};
     buffer[0]= -2;
     buffer[1]=-1;
     subor.write(reinterpret_cast<const char *>(buffer), 512);
 
+    directories_start = 512+512;
     directory_item current;
     strcpy(current.item_name,".");
     current.start_cluster = 1;
     current.size= 0;
     current.isFile=false;
-    subor.seekp((1+fat_tabulka_sektoru)*sektor_size); // urobit funkciu s tzm y discirdu
+
+    subor.seekp((1+fat_tabulka_sektoru)*sektor_size+512); // 1024
     subor.write(reinterpret_cast<const char *>(&current), sizeof(directory_item));
 
-    subor.seekp((1+fat_tabulka_sektoru)*sektor_size+32); /// akoze size of directory item ale lepsie aby to vyslo
+    subor.seekp((1+fat_tabulka_sektoru)*sektor_size+512+32); /// akoze size of directory item ale lepsie aby to vyslo
     directory_item parent;
     strcpy(parent.item_name,"..");
     parent.start_cluster = 1;
     parent.size= 0;
     parent.isFile=false;
     subor.write(reinterpret_cast<const char *>(&parent), sizeof(directory_item));
+/*
+    char arr[512];
+    read_sector(0,&arr[0]);
+*/
 
+/*
+    char buff[512];
+    for (int i = 0; i < sizeof(buff); i++) {
+        buff[i] = 'a';
+    }
+    write_sector(0, &buff[0]);
 
+    char arr[512];
+    read_sector(0,&arr[0]);
 
+ */
 
 
     return;
@@ -125,27 +158,44 @@ int byte_from_sector(int sector){
 
 //tu malo byt to pole asi vyreturnovane ale C to nevie, tak som to utobila tak ze to pole je public, lebo predpolkadam,ze bude len jedno
 
+void read_sector(int number, char *arr){
+
+    //subor.seekg(sector_start_address + number*sektor_size);
+    subor.seekg(512+number*sektor_size);
+    subor.read(arr, sizeof(arr));
+};
+
+void write_sector(int number, char *buff){
+
+    subor.seekp(512+number*sektor_size);
+    subor.write(buff, sizeof(buff));
+};
+
+/*
 void read_sector(int number){
 
     subor.seekp(number*sektor_size);
     subor.read(const_cast<char *>(reinterpret_cast<const char *>(&help_sektor)), sektor_size);
 };
+ */
 
 void read_cluster(int number){
 
-    subor.seekp(number*cluster_size*sektor_size);
+    subor.seekp(512+number*cluster_size*sektor_size);
     subor.read(const_cast<char *>(reinterpret_cast<const char *>(&help_cluster)), cluster_size*sektor_size);
 };
 
+/*
 void write_sector(int number, char buff[512]){
 
     subor.seekp(number*sektor_size);
     subor.write(const_cast<char *>(reinterpret_cast<const char *>(&buff)), sektor_size);
 };
+ */
 
 void write_cluster(int number, char buff[512*4]){
 
-    subor.seekp(number*sektor_size*cluster_size);
+    subor.seekp(512+number*sektor_size*cluster_size);
     subor.write(const_cast<char *>(reinterpret_cast<const char *>(&buff)), cluster_size*sektor_size);
 };
 

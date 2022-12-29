@@ -8,7 +8,9 @@
 #include <string>
 
 
+void read_sector(int number, char *arr);
 
+void write_sector(int number, char *arr);
 
 
 
