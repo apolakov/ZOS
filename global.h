@@ -7,7 +7,7 @@
 
 const int cluster_size = 4; // v sektoroch
 
-const int sektor_size = 512;
+const int  sektor_size = 512;
 static char help_sektor[512];
 static char help_cluster[512*4];
 

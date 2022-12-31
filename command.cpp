@@ -17,6 +17,10 @@ extern int fat_start;
 extern int directories_start;
 extern int data_start;
 extern int fat_tabulka_sektoru;
+extern int directories_start;
+extern std::fstream subor;
+
+bool sector_contains_directory(int i, char *string);
 
 using namespace std;
 
@@ -48,7 +52,8 @@ int format(std::vector<std::string> vector1) {
 
     vyuzitelna_kapacita = (size-512);
     pocet_clusteru = sektors / cluster_size;
-    fat_tabulka_sektoru = 1 + (sizeof(int) * pocet_clusteru) / sektor_size;
+    fat_tabulka_sektoru = 1 + (sizeof(int) * (cluster_size*sektor_size));
+    cout<<endl<<"fattabulka_sektoru"<<fat_tabulka_sektoru<<endl;
     cout<<"sektors:";
     cout<<sektors<<endl;
     cout<<"OK";
@@ -158,18 +163,64 @@ void mkdir(std::vector<std::string> vector1) {
         cout<<vector1.size();
         return;
     }
+/*
+    int place = directories_start;
 
+    cout<<endl<<place<<"place";
+    cout<<place+cluster_size*sektor_size<<"place2";
+    for(int i = place;i<place+(cluster_size*sektor_size);i=i+32){
+
+
+        subor.seekp(place);
+        char a;
+        subor.read(reinterpret_cast<char *>(&a), sizeof(char));
+        cout<<a<<endl;
+        if(a=='.'){
+            cout<<endl<<"som v czkle";
+            directory_item dir;
+            strcpy(dir.item_name,"file1");
+            dir.start_cluster = 1;
+            dir.size= 0;
+            dir.isFile=false;
+
+            subor.write(reinterpret_cast<const char *>(&dir), sizeof(directory_item));
+            cout<<"uspesne yzapisane na poziciu>"<<place;
+            break;
+        }
+    }
+    */
+
+
+    /*
     std::vector<std::string>::iterator it = vector1.begin();
     it++;
     std::string path =  *it;
+    char first = path.front();
 
-    string str1 ("\\");
-    string str2 ("/");
+    if (first=='/') {
 
-    if (((path.find(str1))||(path.find(str2))) != string::npos) {
-        mkdir_absolut(path);
+       char* str = const_cast<char *>(path.c_str());
+        char *ptr; // declare a ptr pointer
+        ptr = strtok(str, " / "); // use strtok() function to separate string using comma (,) delimiter.
+        while (ptr != NULL)
+        {
+
+            cout << ptr  << endl; // print the string token
+           if ( !sector_contains_directory(0,ptr)){
+               cout<<"CESTA NEEXISTUJE";
+               break;
+           }
+            ptr = strtok (NULL, " / ");
+
+
+        }
+
+
+
+
     }
-    else mkdir_relativ(path);
+     */
+   // else mkdir_relativ(path);
 
 
 
@@ -192,16 +243,29 @@ void mkdir(std::vector<std::string> vector1) {
 */
 }
 
-void mkdir_relativ(string basicString) {
+bool sector_contains_directory(int poradie, char *string) {
 
+    int first_item = directories_start+poradie*cluster_size;
+    int last_item =  directories_start+poradie*cluster_size+ (cluster_size*sektor_size);
+
+    for (int i = first_item; i< last_item;i=i+32 ){
+
+        cout<<i<<endl;
+
+        subor.seekp(i);
+        char *nazov;
+        subor.read(nazov, 8);
+        if(nazov==string){
+            return true;
+        }
+    }
+
+    return false;
 }
 
-void mkdir_absolut(string basicString) {
-
-
-
-}
-
+/*
+ * určí či je vo vektore zadaný príkaz
+ */
 bool contains(std::vector<std::string> v, std::string name) {
 
     if (std::count(v.begin(), v.end(), name)) {

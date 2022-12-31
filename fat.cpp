@@ -107,19 +107,20 @@ void nacti_zaklad_fat(std::string filename) {
     buffer[1]=-1;
     subor.write(reinterpret_cast<const char *>(buffer), 512);
 
-    directories_start = 512+512;
+    directories_start = (1+fat_tabulka_sektoru)*sektor_size;
+    cout<<endl<<directories_start<<"placevinom:";
     directory_item current;
     strcpy(current.item_name,".");
     current.start_cluster = 1;
     current.size= 0;
     current.isFile=false;
 
-    subor.seekp((1+fat_tabulka_sektoru)*sektor_size+512); // 1024
+    subor.seekp((1+fat_tabulka_sektoru)*sektor_size); // 1024
     subor.write(reinterpret_cast<const char *>(&current), sizeof(directory_item));
 
     subor.seekp((1+fat_tabulka_sektoru)*sektor_size+512+32); /// akoze size of directory item ale lepsie aby to vyslo
     directory_item parent;
-    strcpy(parent.item_name,"..");
+    strcpy(parent.item_name,"PREBOHAAA");
     parent.start_cluster = 1;
     parent.size= 0;
     parent.isFile=false;
@@ -161,13 +162,13 @@ int byte_from_sector(int sector){
 void read_sector(int number, char *arr){
 
     //subor.seekg(sector_start_address + number*sektor_size);
-    subor.seekg(512+number*sektor_size);
+    subor.seekg(number*sektor_size);
     subor.read(arr, sizeof(arr));
 };
 
 void write_sector(int number, char *buff){
 
-    subor.seekp(512+number*sektor_size);
+    subor.seekp(number*sektor_size);
     subor.write(buff, sizeof(buff));
 };
 
