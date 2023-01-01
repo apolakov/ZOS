@@ -108,27 +108,29 @@ void nacti_zaklad_fat(std::string filename) {
     subor.write(reinterpret_cast<const char *>(buffer), 512);
 
     directories_start = (1+fat_tabulka_sektoru)*sektor_size;
-    cout<<endl<<directories_start<<"placevinom:";
+
     directory_item current;
-    strcpy(current.item_name,".");
+    strcpy(current.item_name,"CURRENT0");
     current.start_cluster = 1;
     current.size= 0;
     current.isFile=false;
-
-    subor.seekp((1+fat_tabulka_sektoru)*sektor_size); // 1024
+    subor.seekp((1+fat_tabulka_sektoru)*sektor_size); // urobit funkciu s tzm y discirdu
     subor.write(reinterpret_cast<const char *>(&current), sizeof(directory_item));
 
-    subor.seekp((1+fat_tabulka_sektoru)*sektor_size+512+32); /// akoze size of directory item ale lepsie aby to vyslo
+    subor.seekp((1+fat_tabulka_sektoru)*sektor_size+32); /// akoze size of directory item ale lepsie aby to vyslo
     directory_item parent;
-    strcpy(parent.item_name,"PREBOHAAA");
+    strcpy(parent.item_name,"PARENT00");
     parent.start_cluster = 1;
     parent.size= 0;
     parent.isFile=false;
     subor.write(reinterpret_cast<const char *>(&parent), sizeof(directory_item));
+
+
 /*
+
     char arr[512];
     read_sector(0,&arr[0]);
-*/
+
 
 /*
     char buff[512];
@@ -143,7 +145,7 @@ void nacti_zaklad_fat(std::string filename) {
  */
 
 
-    return;
+
 }
 int   _from_cluster(int cluster ){
     //sektor = 1 + pocet fat sektoru + (cluster-1) * velikost clusteru

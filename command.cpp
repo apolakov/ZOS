@@ -20,7 +20,7 @@ extern int fat_tabulka_sektoru;
 extern int directories_start;
 extern std::fstream subor;
 
-bool sector_contains_directory(int i, char *string);
+int sector_contains_directory(int i, char *string);
 
 using namespace std;
 
@@ -52,7 +52,7 @@ int format(std::vector<std::string> vector1) {
 
     vyuzitelna_kapacita = (size-512);
     pocet_clusteru = sektors / cluster_size;
-    fat_tabulka_sektoru = 1 + (sizeof(int) * (cluster_size*sektor_size));
+    fat_tabulka_sektoru = 1 + (sizeof(int) * (cluster_size/sektor_size));
     cout<<endl<<"fattabulka_sektoru"<<fat_tabulka_sektoru<<endl;
     cout<<"sektors:";
     cout<<sektors<<endl;
@@ -158,121 +158,106 @@ void cp(std::vector<std::string> vector1) {
 
 void mkdir(std::vector<std::string> vector1) {
 
-    if(vector1.size()!=2){
-        std::cout<<"CAN NOT CREATE FILE ...Chybny pocet parametrov";
-        cout<<vector1.size();
+    if (vector1.size() != 2) {
+        std::cout << "CAN NOT CREATE FILE ...Chybny pocet parametrov";
+        cout << vector1.size();
         return;
     }
-/*
-    int place = directories_start;
 
-    cout<<endl<<place<<"place";
-    cout<<place+cluster_size*sektor_size<<"place2";
-    for(int i = place;i<place+(cluster_size*sektor_size);i=i+32){
-
-
-        subor.seekp(place);
-        char a;
-        subor.read(reinterpret_cast<char *>(&a), sizeof(char));
-        cout<<a<<endl;
-        if(a=='.'){
-            cout<<endl<<"som v czkle";
-            directory_item dir;
-            strcpy(dir.item_name,"file1");
-            dir.start_cluster = 1;
-            dir.size= 0;
-            dir.isFile=false;
-
-            subor.write(reinterpret_cast<const char *>(&dir), sizeof(directory_item));
-            cout<<"uspesne yzapisane na poziciu>"<<place;
-            break;
-        }
-    }
-    */
-
-
-    /*
     std::vector<std::string>::iterator it = vector1.begin();
     it++;
-    std::string path =  *it;
+    std::string path = *it;
     char first = path.front();
+    if (first == '/') {
 
-    if (first=='/') {
-
-       char* str = const_cast<char *>(path.c_str());
+        char *str = const_cast<char *>(path.c_str());
         char *ptr; // declare a ptr pointer
         ptr = strtok(str, " / "); // use strtok() function to separate string using comma (,) delimiter.
-        while (ptr != NULL)
-        {
+        int dir = 0;
+        while (ptr != NULL) {
 
-            cout << ptr  << endl; // print the string token
-           if ( !sector_contains_directory(0,ptr)){
-               cout<<"CESTA NEEXISTUJE";
-               break;
-           }
-            ptr = strtok (NULL, " / ");
+            cout << ptr << endl; // print the string token
+            if (sector_contains_directory(dir, ptr)==-1) {
+                cout << "CESTA NEEXISTUJE";
+                break;
+            } else{
+                int a =sector_contains_directory(dir, ptr);
+                subor.seekp(a+8);
+                subor.read(dir,sizeof(int));
+            }
+            ptr = strtok(NULL, " / ");
 
 
         }
 
 
+        int place = directories_start;
+        for (int i = place; i < place + (cluster_size * sektor_size); place = place + 32) {
 
 
-    }
-     */
-   // else mkdir_relativ(path);
-
-
-
-    /*
-    directory_item item; // ma to bzt jeden blok... netusim co to znamena
-
-    while( (name).size()<8){
-        name = name + "0";
-    }
-    name = name + "/0";
-
-    item.item_name = name;
-    item.isFile= true;
-    item.size=50;               /// neviem ci tak fakt
-    item.start_cluster = 0;
-    //subor.seekp(directory_starts);
-    // subor.write(reinterpret_cast<char *>(&root), sizeof(root));
-
-    std::cout<< sizeof(directory_item);
-*/
-}
-
-bool sector_contains_directory(int poradie, char *string) {
-
-    int first_item = directories_start+poradie*cluster_size;
-    int last_item =  directories_start+poradie*cluster_size+ (cluster_size*sektor_size);
-
-    for (int i = first_item; i< last_item;i=i+32 ){
-
-        cout<<i<<endl;
-
-        subor.seekp(i);
-        char *nazov;
-        subor.read(nazov, 8);
-        if(nazov==string){
-            return true;
+            subor.seekp(place);
+            char a;
+            subor.read(reinterpret_cast<char *>(&a), sizeof(char));
+            cout << place;
+            cout << a << endl;
+            if ((!isdigit(a) && (!isalpha(a)))) {
+                cout << endl << "som v czkle";
+                directory_item dir;
+                strcpy(dir.item_name, "FILE0000");
+                dir.start_cluster = 1;
+                dir.size = 0;
+                dir.isFile = false;
+                subor.seekp(place);
+                subor.write(reinterpret_cast<const char *>(&dir), sizeof(directory_item));
+                cout << "uspesne yzapisane na poziciu>" << place;
+                break;
+            }
         }
+
+    }
+        /*
+
+
+
+
+
+
+
+         */
+        // else mkdir_relativ(path);
+
     }
 
-    return false;
-}
+    int sector_contains_directory(int poradie, char *string) {
+
+
+        int first_item = directories_start + poradie * cluster_size;
+        int last_item = directories_start + poradie * cluster_size + (cluster_size * sektor_size);
+
+        for (int i = first_item; i < last_item; i = i + 32) {
+
+            cout << i << endl;
+
+            subor.seekp(i);
+            char *nazov;
+            subor.read(nazov, 8);
+            if (nazov == string) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
 
 /*
  * určí či je vo vektore zadaný príkaz
  */
-bool contains(std::vector<std::string> v, std::string name) {
+    bool contains(std::vector<std::string> v, std::string name) {
 
-    if (std::count(v.begin(), v.end(), name)) {
-        return true;
-    }
-    else {
+        if (std::count(v.begin(), v.end(), name)) {
+            return true;
+        } else {
+            return false;
+        }
         return false;
     }
-    return false;
-}
